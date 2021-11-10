@@ -25,6 +25,8 @@ async function run() {
         const database = client.db('sunglasses');
         const productsCollection = database.collection('products');
         const reviewsCollection = database.collection('reviews');
+        const bookingsCollection = database.collection('bookings');
+        const usersCollection = database.collection('users');
 
         // collect Products from client side
         app.post('/products', async(req, res) => {
@@ -45,7 +47,7 @@ async function run() {
             const review = req.body;
             const result = await reviewsCollection.insertOne(review);
             res.json(result);
-        })
+        });
 
         // send all reviews
         app.get('/reviews', async(req, res) => {
@@ -53,6 +55,32 @@ async function run() {
             const reviews = await cursor.toArray();
             res.json(reviews);
         });
+
+        // load booking info
+        app.post('/bookings', async(req, res) => {
+            const booking = req.body;
+            console.log(booking);
+            const result = await bookingsCollection.insertOne(booking);
+            res.json(result);
+        });
+
+        // load user
+        app.post('/users', async(req, res) => {
+            const user = req.body;
+            const result = await usersCollection.insertOne(user);
+            res.json(result);
+        });
+
+        // make admin
+        app.put('/users', async(req, res) => {
+            const user = req.body;
+            console.log(user);
+            const filter = {email: user.email};
+            const updateDoc = {$set: {role: 'admin'}};
+            const result = await usersCollection.updateOne(filter, updateDoc);
+            res.json(result);
+        })
+
 
 
     }
