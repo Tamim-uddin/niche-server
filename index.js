@@ -3,6 +3,7 @@ const express = require('express');
 const { MongoClient } = require('mongodb');
 require('dotenv').config();
 const cors = require('cors');
+const ObjectId = require('mongodb').ObjectId;
 
 
 const app = express();
@@ -63,6 +64,32 @@ async function run() {
             const result = await bookingsCollection.insertOne(booking);
             res.json(result);
         });
+        
+        // send booking info via email
+        app.get('/bookings', async(req, res) => {
+            const email = req.query.email;
+            const query = {email: email};
+            const cursor =  bookingsCollection.find(query);
+            const bookings = await cursor.toArray();
+            res.json(bookings);
+        });
+
+
+        // send all bookings
+        app.get('/bookings/admin', async(req, res) => {
+            const cursor = bookingsCollection.find({});
+            const bookings = await cursor.toArray();
+            res.json(bookings);
+        })
+
+        // delete specipic booking
+        app.delete('/bookings/:id', async(req, res) => {
+            const id = req.params.id;
+            const query = {_id: ObjectId(id)};
+            const result = await bookingsCollection.deleteOne(query);
+            console.log(result);
+            res.json(result)
+        })
 
         // load user
         app.post('/users', async(req, res) => {
